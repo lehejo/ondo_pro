@@ -44,13 +44,6 @@ function getCurrentWeatherByLocation(latitude, longitude) {
     fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${WEATHERAPIKEY}&units=metric`)
         .then((response) => response.json())
         .then((data) => {
-            const cityName = data.name;
-            const description = data.weather[0].description;
-            const temperature = data.main.temp;
-
-            const message = `현재 ${cityName}의 날씨는 ${description}, 기온은 ${temperature}℃ 입니다.`;
-            addMessage("Bot", message);
-
             // 날씨 정보를 로컬 스토리지에 저장
             localStorage.setItem('weatherData', JSON.stringify(data));
         })
