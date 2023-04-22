@@ -7,7 +7,7 @@ const weatherBtn = document.querySelector(".weather-button");
 weatherBtn.addEventListener("click", () => {
     const isLocationAllowed = localStorage.getItem('locationAllowed');
     if (isLocationAllowed === 'true') {
-        getCurrentWeather();
+        getCurrentWeatherByLocation();
     } else {
         requestLocationPermission();
     }
@@ -20,7 +20,7 @@ function requestLocationPermission() {
         .then(permission => {
             if (permission.state === 'granted') {
                 localStorage.setItem('locationAllowed', 'true');
-                getCurrentWeather();
+                getCurrentWeatherByLocation();
             } else if (permission.state === 'prompt') {
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
@@ -41,10 +41,19 @@ function requestLocationPermission() {
 }
 
 function getCurrentWeatherByLocation(latitude, longitude) {
-    fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${WEATHERAPIKEY}&units=metric`)
-        .then((response) => response.json())
-        .then((data) => {
-            // 날씨 정보를 로컬 스토리지에 저장
-            localStorage.setItem('weatherData', JSON.stringify(data));
-        })
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            const lat = latitude || position.coords.latitude;
+            const lon = longitude || position.coords.longitude;
+            fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${WEATHERAPIKEY}&units=metric`)
+                .then((response) => response.json())
+                .then((data) => {
+                    // 날씨 정보를 로컬 스토리지에 저장
+                    localStorage.setItem('weatherData', JSON.stringify(data));
+                });
+        },
+        (error) => {
+            console.log(error);
+        }
+    );
 }
