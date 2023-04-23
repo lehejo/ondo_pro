@@ -1,6 +1,3 @@
-// Execute the run() function when the button is clicked
-document.querySelector('.RUN').addEventListener('click', run);
-
 document.addEventListener('DOMContentLoaded', function () {
 
       // The run() function
@@ -68,4 +65,7 @@ document.addEventListener('DOMContentLoaded', function () {
           });
         });
       }
+      // Execute the run() function when the button is clicked
+      document.querySelector('.RUN').addEventListener('click', run);
+
 });
