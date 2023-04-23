@@ -2,8 +2,9 @@ window.onload = async function () {
     const chatMessages = document.querySelector(".chatroom");
     const weatherBtn = document.querySelector(".weather-button");
     const resetBtn = document.querySelector(".reset");
-    const CHATGPTAPIKEY = "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";
-    const WEATHERAPIKEY = "0f14bd43cf27ee83d11fead9b7d56917";
+    const CHATGPTAPIKEY = config.CHATGPTAPIKEY;
+    const WEATHERAPIKEY = config.WEATHERAPIKEY;
+    let weatherFetched = false;
 
     function addMessage(sender, message) {
         const messageContainer = document.createElement("div");
@@ -25,20 +26,26 @@ window.onload = async function () {
     }
 
     async function getLocation() {
+        const params = new URLSearchParams(window.location.search);
+        const lat = params.get("lat");
+        const lng = params.get("lng");
+
+        if (lat && lng) {
+            return {
+                coords: {
+                    latitude: parseFloat(lat),
+                    longitude: parseFloat(lng),
+                },
+            };
+        }
+
         return new Promise((resolve, reject) => {
             navigator.geolocation.getCurrentPosition(resolve, reject);
         });
     }
 
-    let weatherFetched = false;
-
     async function getCurrentWeather(latitude, longitude) {
         try {
-            // 이전에 날씨 정보를 가져왔다면 바로 반환
-            if (weatherFetched) {
-                const weatherData = JSON.parse(localStorage.getItem("weatherData"));
-                return weatherData;
-            }
             const lat = latitude || (await getLocation()).coords.latitude;
             const lon = longitude || (await getLocation()).coords.longitude;
             const response = await fetch(
@@ -55,13 +62,16 @@ window.onload = async function () {
             // 날씨 정보를 로컬 스토리지에 저장
             localStorage.setItem("weatherData", JSON.stringify(weatherData));
             weatherFetched = true; // 날씨 정보를 가져온 상태로 설정
-            return weatherData;
+            return temperature; // 온도 정보 반환
         } catch (error) {
-            console.error("날씨 정보 호출 중 오류 발생:", error);
-            addMessage("Chat GPT", "날씨 정보 호출 중 오류 발생");
+            console.error("오류 발생: 날씨 정보 호출 과정", error);
+            const message = `오류 발생: 날씨 정보 호출 과정 - ${error.message}`;
+            window.alert(message); // 메시지 창으로 오류 메시지 표시
+            addMessage("Chat GPT", message); // 채팅창에 오류 메시지 추가
             return null;
         }
     }
+
     async function chatfetch(prompt) {
         const apiEndpoint = "https://api.openai.com/v1/engines/davinci-codex/completions";
         const requestOptions = {
@@ -84,44 +94,38 @@ window.onload = async function () {
 
     function recommendCloth(temperature) {
         let cloth;
-        if (temperature > 4) {
-            cloth = '겉옷으로 패딩이나 코트, 상의로 따뜻한 니트';
-        } else if (temperature > 12) {
-            cloth = '상의는 자켓이나 가디건, 하의는 면바지';
-        } else if (temperature > 22) {
-            cloth = '상의는 얇은 옷이나 반팔, 하의는 반바지';
+        if (temperature <= 4) {
+            cloth = '패딩, 코트, 니트';
+        } else if (temperature <= 12) {
+            cloth = '자켓, 가디건, 면바지';
+        } else if (temperature <= 22) {
+            cloth = '얇은 긴팔, 반팔, 반바지';
+        } else {
+            cloth = '민소매, 반바지';
         }
         return cloth;
     }
 
     weatherBtn.addEventListener("click", async function () {
-        // 사용자의 위치 정보 허용 여부 체크
-        if (!navigator.geolocation) {
-            addMessage("Chat GPT", "죄송합니다. 이 브라우저에서는 위치 정보를 지원하지 않습니다.");
-            return;
-        }
         try {
-            const position = await getLocation();
-            const {
+            let position = await getLocation();
+            let {
                 latitude,
                 longitude
             } = position.coords;
-            const weatherData = await getCurrentWeather(latitude, longitude);
-            const temperature = weatherData.main.temp;
-            const cityName = weatherData.name;
-            const description = weatherData.weather[0].description;
-            const message = `현재 ${cityName}의 날씨는 ${description}, 기온은 ${temperature}℃ 입니다.`;
-            // 이미 날씨 정보를 출력했다면 추가적으로 출력하지 않음
-            if (!weatherFetched) {
-                addMessage("Chat GPT", message);
-            }
+            let weatherData = await getCurrentWeather(latitude, longitude);
+            let temperature = weatherData.main.temp;
+
             addMessage("사용자", "오늘 날씨를 바탕으로 옷차림을 추천해 줘!");
-            const cloth = recommendCloth(temperature);
-            const clothMessage = `오늘 추천하는 옷차림은 ${cloth}입니다.`;
-            addMessage("Chat GPT", clothMessage);
+            let cloth = recommendCloth(temperature);
+            let message = `오늘의 추천 옷차림은 ${cloth}입니다`;
+            addMessage("Chat GPT", message);
         } catch (error) {
-            console.error(error);
-            addMessage("Chat GPT", "날씨 정보를 가져오는 중에 오류가 발생했습니다.");
+            console.error("오류 발생: 날씨 정보 호출 과정", error);
+            const message = `오류 발생: 날씨 정보 호출 과정 - ${error.message}`;
+            window.alert(message); // 메시지 창으로 오류 메시지 표시
+            addMessage("Chat GPT", message); // 채팅창에 오류 메시지 추가
+            return null;
         }
     });
 
