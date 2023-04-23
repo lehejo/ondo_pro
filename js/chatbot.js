@@ -1,5 +1,5 @@
 // Execute the run() function when the button is clicked
-document.getElementById('.RUN').addEventListener('click', run);
+document.getElementById('RUN').addEventListener('click', run);
 
 document.addEventListener('DOMContentLoaded', function () {
 
