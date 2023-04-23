@@ -2,8 +2,7 @@
 logs
 *.log
 
-# API keys
-apikey.js
+.env
 
 # Output of npm
 node_modules/

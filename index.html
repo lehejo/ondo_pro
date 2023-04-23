@@ -5,17 +5,18 @@
     <title>ONDO</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="chatR.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@1,900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@700&display=swap" rel="stylesheet">
 </head>
 
 <body>
     <h1>ONDO</h1>
 
+    <input id="message-input" type="text">
+    <button class="RUN">RUN</button>
 
-    <div class="button-wrapper">
-        <button class="weather-button">Run</button>
-        <button class="reset">Reset</button>
-    </div>
-      
 
     <div class="chatroom"></div>
 
@@ -27,9 +28,10 @@
         <button class="button5" onclick="location.href='https://kream.co.kr/'">Kream</button>
     </div>
 
-    <script src="./js/gpt.js"></script>
-    <script src="./js/apikey.js"></script>
-    <script type="module"></script>
+    <iframe id="chatgpt-frame" src="https://api-inference.huggingface.co/docs/python/html/quicktour.html"></iframe>
+
+    <script src="./js/chatbot.js"></script>
+
 </body>
 
 </html>
