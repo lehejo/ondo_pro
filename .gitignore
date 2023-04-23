@@ -1,0 +1,9 @@
+# Logs
+logs
+*.log
+
+# API keys
+apikey.js
+
+# Output of npm
+node_modules/

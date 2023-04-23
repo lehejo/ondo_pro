@@ -1,4 +1,5 @@
 window.onload = async function () {
+    const config = await getConfig();
     const chatMessages = document.querySelector(".chatroom");
     const weatherBtn = document.querySelector(".weather-button");
     const resetBtn = document.querySelector(".reset");
@@ -133,4 +134,10 @@ window.onload = async function () {
         localStorage.removeItem("weatherData");
         addMessage("Chat GPT", "날씨 정보가 초기화되었습니다.");
     });
+
+    async function getConfig() {
+        const response = await fetch("./js/apikey.js");
+        const text = await response.text();
+        return JSON.parse(text.replace(/^[^{]*|[^}]*$/g, ''));
+    }
 }
